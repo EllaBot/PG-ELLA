@@ -4,20 +4,20 @@ from gradientdescent import GradientDescent
 
 
 class PGPE():
-    def __init__(self, evaluator, alphasigma=0.1, alphatheta=0.2):
+    def __init__(self, evaluator, problemsize, alphatheta=0.2, alphasigma=0.1):
         """
 
         :param evaluator: lambda that evaluates a policy
         """
-        self.problemsize = 4
+        self.problemsize = problemsize
 
         self.epsilon = 2.0
-        self.bestevaluation = -1000
+        self.bestevaluation = -100
 
-        self.current = np.zeros(self.problemsize)
+        self.theta = np.zeros(self.problemsize)
         self.gd = GradientDescent()
         self.gd.alpha = alphatheta
-        self.gd.init(self.current)
+        self.gd.init(self.theta)
 
         self.sigmalist = np.ones(self.problemsize, 'f') * self.epsilon
         self.gdsigma = GradientDescent()
@@ -34,8 +34,8 @@ class PGPE():
         deltas = self.perturbation()
 
         # Conduct two rollouts
-        reward1 = self.evaluate(self.current + deltas)
-        reward2 = self.evaluate(self.current - deltas)
+        reward1 = self.evaluate(self.theta + deltas)
+        reward2 = self.evaluate(self.theta - deltas)
 
         self.meanreward = (reward1 + reward2) / 2.
         if reward1 != reward2:
@@ -54,8 +54,8 @@ class PGPE():
         # update baseline
         self.baseline = 0.9 * self.baseline + 0.1 * self.meanreward
         # update parameters and sigmas
-        self.current = self.gd(
-            fakt * deltas - self.current * self.sigmalist * self.wdecay)
+        self.theta = self.gd(
+            fakt * deltas - self.theta * self.sigmalist * self.wdecay)
         # for sigma adaption alg. follows only positive gradients
         if fakt2 > 0.:
             # apply sigma update globally
@@ -64,5 +64,7 @@ class PGPE():
                 / (self.sigmalist * float(self.problemsize)))
 
     def perturbation(self):
-        """ Generate a difference vector with the given standard deviations """
+        """ Generate a difference vector with the given standard deviations
+        :rtype : ndarray
+        """
         return np.random.normal(0., self.sigmalist)
