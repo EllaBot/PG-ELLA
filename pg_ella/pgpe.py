@@ -1,10 +1,9 @@
-import random
 import numpy as np
 from gradientdescent import GradientDescent
 
 
 class PGPE():
-    def __init__(self, evaluator, problemsize, alphatheta=0.2, alphasigma=0.1):
+    def __init__(self, problemsize, alphasigma=0.1, alphatheta=0.2):
         """
 
         :param evaluator: lambda that evaluates a policy
@@ -26,16 +25,14 @@ class PGPE():
 
         self.deltas = np.zeros(self.problemsize, 'f')
         self.wdecay = 0.0
-        self.evaluate = evaluator
         self.meanreward = 0
         self.baseline = 0
 
-    def learn(self):
-        deltas = self.perturbation()
+    def getperturbedthetas(self):
+        self.deltas = self.perturbation()
+        return self.theta + self.deltas, self.theta - self.deltas
 
-        # Conduct two rollouts
-        reward1 = self.evaluate(self.theta + deltas)
-        reward2 = self.evaluate(self.theta - deltas)
+    def learn(self, reward1, reward2):
 
         self.meanreward = (reward1 + reward2) / 2.
         if reward1 != reward2:
@@ -55,7 +52,7 @@ class PGPE():
         self.baseline = 0.9 * self.baseline + 0.1 * self.meanreward
         # update parameters and sigmas
         self.theta = self.gd(
-            fakt * deltas - self.theta * self.sigmalist * self.wdecay)
+            fakt * self.deltas - self.theta * self.sigmalist * self.wdecay)
         # for sigma adaption alg. follows only positive gradients
         if fakt2 > 0.:
             # apply sigma update globally
@@ -64,7 +61,5 @@ class PGPE():
                 / (self.sigmalist * float(self.problemsize)))
 
     def perturbation(self):
-        """ Generate a difference vector with the given standard deviations
-        :rtype : ndarray
-        """
+        """ Generate a difference vector with the given standard deviations """
         return np.random.normal(0., self.sigmalist)
