@@ -3,14 +3,14 @@ from gradientdescent import GradientDescent
 
 
 class PGPE():
-    def __init__(self, problemsize, alphasigma=0.1, alphatheta=0.2):
+    def __init__(self, problemsize, epsilon=0.01, alphasigma=0.1, alphatheta=0.2):
         """
 
         :param evaluator: lambda that evaluates a policy
         """
         self.problemsize = problemsize
 
-        self.epsilon = 2.0
+        self.epsilon = epsilon
         self.bestevaluation = -100
 
         self.theta = np.zeros(self.problemsize)
