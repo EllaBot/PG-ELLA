@@ -11,7 +11,7 @@ class PGPE():
         self.problemsize = problemsize
 
         self.epsilon = epsilon
-        self.bestevaluation = None
+        self.bestevaluation = -1000000
 
         self.theta = np.zeros(self.problemsize)
         self.gd = GradientDescent()
@@ -33,6 +33,10 @@ class PGPE():
         return self.theta + self.deltas, self.theta - self.deltas
 
     def learn(self, reward1, reward2):
+        if reward1 > self.bestevaluation:
+            self.bestevaluation = reward1
+        if reward2 > self.bestevaluation:
+            self.bestevaluation = reward2
 
         self.meanreward = (reward1 + reward2) / 2.0
         if self.baseline is None:
