@@ -11,7 +11,7 @@ class PGPE():
         self.problemsize = problemsize
 
         self.epsilon = epsilon
-        self.bestevaluation = -100
+        self.bestevaluation = None
 
         self.theta = np.zeros(self.problemsize)
         self.gd = GradientDescent()
@@ -34,20 +34,27 @@ class PGPE():
 
     def learn(self, reward1, reward2):
 
-        self.meanreward = (reward1 + reward2) / 2.
-        if reward1 != reward2:
-            fakt = (reward1 - reward2) / (
-                2. * self.bestevaluation - reward1 - reward2)
+        self.meanreward = (reward1 + reward2) / 2.0
+        if self.baseline is None:
+            # first learning step
+            self.baseline = self.mreward
+            fakt = 0.
+            fakt2 = 0.
         else:
-            fakt = 0.0
-
-        # normalized sigma gradient with moving average baseline
-        norm = self.bestevaluation - self.baseline
-        if norm != 0.0:
-            fakt2 = (self.meanreward - self.baseline) / (
-                self.bestevaluation - self.baseline)
-        else:
-            fakt2 = 0.0
+            if reward1 != reward2:
+                fakt = (reward1 - reward2) / (
+                    2. * self.bestevaluation - reward1 - reward2)
+            else:
+                fakt = 0.0
+    
+            # normalized sigma gradient with moving average baseline
+            norm = self.bestevaluation - self.baseline
+            if norm != 0.0:
+                fakt2 = (self.meanreward - self.baseline) / (
+                    self.bestevaluation - self.baseline)
+            else:
+                fakt2 = 0.0
+                
         # update baseline
         self.baseline = 0.9 * self.baseline + 0.1 * self.meanreward
         # update parameters and sigmas
