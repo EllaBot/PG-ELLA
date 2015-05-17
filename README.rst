@@ -1,9 +1,9 @@
 PG-ELLA
-======
+=======
 
 .. image:: https://travis-ci.org/EllaBot/PG-ELLA.svg
 
-A python implementation of PG-ELLA, an algorithm for efficient multi-task learning.[1][2]
+A python implementation of PG-ELLA, an algorithm for efficient multi-task learning.[1][2] The included PGPE and gradient descent implementations are altered versions of the code from [PyBrain](https://github.com/pybrain/pybrain/).
 
 References
 ----------
